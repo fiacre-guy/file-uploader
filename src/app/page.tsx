@@ -1,7 +1,8 @@
+// components/FileUploader.tsx
 'use client'
 
 import { useState, useRef, ChangeEvent, DragEvent, useEffect } from 'react';
-import { X, Upload, Check, AlertCircle, File, Trash2, Save } from 'lucide-react';
+import { X, Upload, Check, AlertCircle, File, Trash2, Save, FileText } from 'lucide-react';
 
 interface FileUploadProps {
   multiple?: boolean;
@@ -289,7 +290,7 @@ export default function FileUploader({
     const fileExtension = file.name.split('.').pop()?.toUpperCase() || '';
     
     return <div className="flex flex-col items-center justify-center w-full h-full bg-white rounded">
-      <File className="w-8 h-8 text-gray-500" />
+      <File className="w-8 h-8 text-indigo-500" />
       <span className="text-xs text-gray-600 mt-1">{fileExtension}</span>
     </div>;
   };
@@ -318,204 +319,213 @@ export default function FileUploader({
   const totalFileSizeMB = (totalFileSize / (1024 * 1024)).toFixed(2);
 
   return (
-    <div className={`file-upload-component w-full max-w-4xl mx-auto bg-white ${className}`}>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-gray-800 text-center mb-4">Validate & Upload Files with React</h1>
-        
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Left Side - Drag and Drop Area */}
-            <div className="w-full md:w-1/2">
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 h-56 flex flex-col items-center justify-center cursor-pointer ${
-                  isDragging ? 'border-gray-500 bg-gray-50' : 'border-gray-300 bg-gray-50 hover:border-gray-400'
-                }`}
-                onDragEnter={handleDragEnter}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="text-center">
-                  <div className="flex justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-500 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <path d="M12 18v-6"></path>
-                      <path d="M9 15l3-3 3 3"></path>
-                    </svg>
+    <div className="flex justify-center items-center w-full min-h-screen bg-gray-50">
+      <div className={`file-upload-component w-full max-w-4xl mx-auto ${className}`}>
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl shadow-lg border border-indigo-100">
+          <h1 className="text-2xl font-bold text-center mb-6">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              Validate & Upload Files
+            </span>
+          </h1>
+          
+          <div className="bg-white p-6 rounded-xl shadow-md border border-indigo-100">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Left Side - Drag and Drop Area */}
+              <div className="w-full md:w-1/2">
+                <div
+                  className={`border-2 border-dashed rounded-xl p-6 h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
+                    isDragging 
+                      ? 'border-indigo-400 bg-indigo-50 shadow-inner' 
+                      : 'border-indigo-200 bg-white hover:border-indigo-300 hover:bg-indigo-50'
+                  }`}
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="text-center">
+                    <div className="flex justify-center">
+                      <div className="p-4 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                        <Upload className="h-10 w-10" />
+                      </div>
+                    </div>
+                    <p className="font-medium text-indigo-700">{description}</p>
+                    <p className="text-indigo-400 mt-2">or</p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300 shadow-md hover:shadow-lg"
+                    >
+                      Browse Files
+                    </button>
                   </div>
-                  <p className="font-medium text-gray-700">{description}</p>
-                  <p className="text-gray-500 mt-2">or</p>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      fileInputRef.current?.click();
-                    }}
-                    className="mt-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                  >
-                    Upload Files
-                  </button>
+                  
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept={acceptedTypesString}
+                    multiple={multiple}
+                    data-testid="file-input"
+                  />
                 </div>
                 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept={acceptedTypesString}
-                  multiple={multiple}
-                  data-testid="file-input"
-                />
-              </div>
-              
-              {/* File Stats */}
-              {files.length > 0 && (
-                <div className="mt-2 bg-white p-2 rounded border border-gray-200">
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Files: {files.length}</span>
-                    <span>Total Size: {totalFileSizeMB} MB</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Right Side - File Preview Area */}
-            <div className="w-full md:w-1/2 bg-white rounded-lg border border-gray-200">
-              <div className="h-56 p-4 flex flex-col">
-                {files.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-400">
-                    <p>No Files Uploaded Yet</p>
-                  </div>
-                ) : (
-                  <div 
-                    ref={fileListRef}
-                    className={`overflow-y-auto flex-grow ${maxHeight}`}
-                    data-testid="file-list"
-                  >
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {files.map((file, index) => (
-                        <div key={`${file.name}-${index}`} className="relative group">
-                          <div className="h-20 w-full border rounded overflow-hidden bg-white shadow-sm hover:shadow transition-shadow">
-                            {getFilePreview(file)}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFile(index);
-                            }}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-80 hover:opacity-100 shadow-sm"
-                            aria-label="Remove file"
-                            data-testid={`remove-file-${index}`}
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                          <div className="text-xs mt-1">
-                            <p className="font-medium truncate" title={file.name}>
-                              {getFileTypeIcon(file)} {file.name}
-                            </p>
-                            <p className="text-gray-500">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                {/* File Stats */}
+                {files.length > 0 && (
+                  <div className="mt-3 bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                    <div className="flex justify-between text-sm text-indigo-700">
+                      <span className="flex items-center">
+                        <FileText className="w-4 h-4 mr-1" /> 
+                        Files: {files.length}
+                      </span>
+                      <span>Total Size: {totalFileSizeMB} MB</span>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-          
-          {/* Network Status */}
-          {networkStatus && (
-            <div className="mt-3 px-3 py-2 bg-white border border-gray-200 rounded-md">
-              <div className="flex items-center text-gray-700 text-xs">
-                <svg className="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 16v-4"></path>
-                  <path d="M12 8h.01"></path>
-                </svg>
-                <span>{networkStatus}</span>
-              </div>
-            </div>
-          )}
-          
-          {/* Error Messages */}
-          {errors.length > 0 && (
-            <div className="mt-4 p-3 bg-white border border-red-200 rounded-md overflow-y-auto max-h-40">
-              {errors.map((error, index) => (
-                <div key={index} className="flex items-center text-red-500 text-sm mb-1 last:mb-0">
-                  <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span>{error}</span>
+              
+              {/* Right Side - File Preview Area */}
+              <div className="w-full md:w-1/2 bg-white rounded-xl border border-indigo-100 shadow-md overflow-hidden">
+                <div className="h-64 p-4 flex flex-col">
+                  <h3 className="text-sm uppercase font-semibold text-indigo-600 mb-2 tracking-wider">Selected Files</h3>
+                  {files.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <p>No Files Selected Yet</p>
+                    </div>
+                  ) : (
+                    <div 
+                      ref={fileListRef}
+                      className={`overflow-y-auto flex-grow ${maxHeight} pr-1`}
+                      data-testid="file-list"
+                    >
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {files.map((file, index) => (
+                          <div key={`${file.name}-${index}`} className="relative group">
+                            <div className="h-20 w-full border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+                              {getFilePreview(file)}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile(index);
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md hover:bg-red-600"
+                              aria-label="Remove file"
+                              data-testid={`remove-file-${index}`}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                            <div className="text-xs mt-1">
+                              <p className="font-medium truncate" title={file.name}>
+                                {getFileTypeIcon(file)} {file.name}
+                              </p>
+                              <p className="text-indigo-500">
+                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-          
-          {/* Upload Progress */}
-          {showProgress && isUploading && (
-            <div className="mt-4">
-              <div className="flex justify-between text-xs mb-1">
-                <span>Uploading...</span>
-                <span>{Math.round(uploadProgress)}%</span>
-              </div>
-              <div className="w-full bg-white rounded-full h-2 border border-gray-200">
-                <div 
-                  className="bg-gray-600 h-2 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${uploadProgress}%` }}
-                  data-testid="upload-progress-bar"
-                ></div>
-              </div>
-              {isUploading && (
-                <div className="text-right mt-1">
-                  <button 
-                    type="button" 
-                    onClick={cancelUpload}
-                    className="text-xs text-red-500 hover:text-red-700"
-                    data-testid="cancel-upload"
-                  >
-                    Cancel Upload
-                  </button>
+            
+            {/* Network Status */}
+            {networkStatus && (
+              <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center text-blue-700 text-sm">
+                  <svg className="w-4 h-4 mr-2 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4"></path>
+                    <path d="M12 8h.01"></path>
+                  </svg>
+                  <span>{networkStatus}</span>
                 </div>
-              )}
+              </div>
+            )}
+            
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg overflow-y-auto max-h-40">
+                {errors.map((error, index) => (
+                  <div key={index} className="flex items-center text-red-600 text-sm mb-2 last:mb-0">
+                    <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Upload Progress */}
+            {showProgress && isUploading && (
+              <div className="mt-5 bg-indigo-50 p-3 rounded-lg">
+                <div className="flex justify-between text-sm text-indigo-700 mb-2">
+                  <span className="font-medium">Uploading Files...</span>
+                  <span className="font-bold">{Math.round(uploadProgress)}%</span>
+                </div>
+                <div className="w-full bg-indigo-100 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                    data-testid="upload-progress-bar"
+                  ></div>
+                </div>
+                {isUploading && (
+                  <div className="text-right mt-2">
+                    <button 
+                      type="button" 
+                      onClick={cancelUpload}
+                      className="text-sm text-red-500 hover:text-red-700 font-medium transition-colors duration-300"
+                      data-testid="cancel-upload"
+                    >
+                      Cancel Upload
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Save Button */}
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={handleUpload}
+                disabled={isUploading || files.length === 0}
+                className={`px-8 py-3 rounded-lg text-white font-medium flex items-center ${
+                  isUploading ? 'bg-gray-400 cursor-not-allowed' : 
+                  files.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
+                } transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1`}
+                data-testid="upload-button"
+              >
+                {isUploading ? (
+                  <>
+                    <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full inline-block"></div>
+                    Uploading...
+                  </>
+                ) : uploadSuccess ? (
+                  <>
+                    <Check className="w-5 h-5 mr-2 inline-block" />
+                    Upload Complete
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2 inline-block" />
+                    Upload Files
+                  </>
+                )}
+              </button>
             </div>
-          )}
-          
-          {/* Save Button */}
-          <div className="mt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={handleUpload}
-              disabled={isUploading || files.length === 0}
-              className={`px-6 py-2 rounded-md text-white font-medium ${
-                isUploading ? 'bg-gray-400 cursor-not-allowed' : 
-                files.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              } transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1`}
-              data-testid="upload-button"
-            >
-              {isUploading ? (
-                <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full inline-block"></div>
-                  Uploading...
-                </>
-              ) : uploadSuccess ? (
-                <>
-                  <Check className="w-4 h-4 mr-2 inline-block" />
-                  Upload Complete
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2 inline-block" />
-                  Save
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+} 

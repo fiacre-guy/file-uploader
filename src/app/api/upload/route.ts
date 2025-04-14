@@ -1,65 +1,46 @@
-// src/app/api/upload/route.ts
+// app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import path from 'path';
-import fs from 'fs';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    console.log("API: Processing upload request");
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const formData = await req.formData();
     
-    if (!file) {
-      console.log("API: No file provided");
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+    // Get the total number of files
+    const totalFiles = formData.get('totalFiles');
+    const uploadTime = formData.get('uploadTime');
+    
+    console.log(`Processing ${totalFiles} files uploaded at ${uploadTime}`);
+    
+    // Process each file
+    const files = [];
+    for (let i = 0; i < parseInt(totalFiles as string); i++) {
+      const file = formData.get(`file-${i}`) as File;
+      if (!file) continue;
+      
+      // Here you would typically process the file - save to disk, upload to cloud storage, etc.
+      // For this example, we'll just log the file details
+      console.log(`Processing file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+      
+      files.push({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
     }
-
-    console.log("API: File received", {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
-
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
-    // Define the path where files will be stored
-    const uploadsDir = path.join(process.cwd(), 'public/uploads');
-    
-    // Ensure directory exists
-    if (!fs.existsSync(uploadsDir)) {
-      console.log("API: Creating uploads directory");
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    
-    // Ensure the filename is safe
-    const filename = file.name.replace(/[^a-zA-Z0-9-_\.]/g, '_');
-    const filepath = path.join(uploadsDir, filename);
-    
-    console.log("API: Saving file to:", filepath);
-    
-    // Write the file to the server
-    await writeFile(filepath, buffer);
-    console.log("API: File saved successfully");
     
     // Return success response
-    return NextResponse.json({ 
-      message: 'File uploaded successfully',
-      filename: filename,
-      path: `/uploads/${filename}`
-    });
+    return NextResponse.json({
+      success: true,
+      message: 'Files uploaded successfully',
+      files: files,
+    }, { status: 200 });
     
-  } catch (error: any) {
-    console.error('Error uploading file:', error);
-    console.error('Error stack:', error.stack);
-    return NextResponse.json(
-      { error: `Error uploading file: ${error.message}` },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('Error uploading files:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Error uploading files',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, { status: 500 });
   }
 }
